@@ -16,7 +16,7 @@ CNAME, TXT e AAAA records.
 
 - Get blockhash by height
 - Get blockheaders by hash
-- Get merkleproof (w.i.p.)
+- Get merkleproof
 - Push tx (todo)
 - Verify unspent (todo)
 
@@ -182,12 +182,77 @@ The merkle proof API gives you the branches of the merkle tree you need to verif
 actually in the blockchain.
 
 ```buildoutcfg
-$ dig 593dd7c0ec799d9e11ac514bf2b445d4.437d6ca3ef58e617095590b9b662d649.merkleproof.btc.domain.co
+$ dig ff39f5ddfefdbd01056ee09d5629d04c.53480eb32f9034f655948fd6b0912e14.merkleproof.btc.domain.co AAAA @localhost -p 8053
  
 ```
+The merkle proof response for this transaction is splitted in two chunks, cause the block is pretty full, and we need 
+a lot of data to rebuild the merkle root.
 
 ```
-TODO
+;; ANSWER SECTION:
+ff39f5ddfefdbd01056ee09d5629d04c.53480eb32f9034f655948fd6b0912e14.merkleproof.btc.domain.co. 86400 IN TXT "ABQukbDWj5RV9jSQL7MOSFNM0ClWneBuBQG9/f7d9Tn/AHM7TcHq3FwY/R/UHTbN3OYzpQZoCYQFjA3VjiZkbjd8AbPUa2e1eyMvg3JZh/128AZvLzj910tlaT+/64mx2w=="
+ff39f5ddfefdbd01056ee09d5629d04c.53480eb32f9034f655948fd6b0912e14.merkleproof.btc.domain.co. 86400 IN TXT "AYH9Afx1EO7TX+nQk3t7LnE1LdYImVdO1JyGyLH3Txgo6Y1dAuWhKcn/alzRjFAiI8PnQFD2roXE16VfHCzQn1p7f4+TAY6dWKH+Qf77istXA4pldbiEPZ09zfY0DfVLqw=="
+ff39f5ddfefdbd01056ee09d5629d04c.53480eb32f9034f655948fd6b0912e14.merkleproof.btc.domain.co. 86400 IN TXT "As+d55/cAU64SlSTCVSJeodT4UfE795qnA+HPbXC44VD9XcKsSB7AfAoTCnUqJmNe8NPkHsfFUTv4qhfsotCRFhcWmjM3UbYARLpLxsHcIqK4YdgPwBQc3DWkvYDPZ+nbA=="
+ff39f5ddfefdbd01056ee09d5629d04c.53480eb32f9034f655948fd6b0912e14.merkleproof.btc.domain.co. 86400 IN AAAA 1000::1
+
 ```
 
+We can notice there's another chunk (1) thanks to the int over AAAA convention (1000::1).
 
+Using pagination we can request the second proof chunk:
+
+```
+
+$ dig ff39f5ddfefdbd01056ee09d5629d04c.53480eb32f9034f655948fd6b0912e14.1.merkleproof.btc.domain.co AAAA @localhost -p 8053
+
+```
+
+And the response is the second part of data:
+```
+ff39f5ddfefdbd01056ee09d5629d04c.53480eb32f9034f655948fd6b0912e14.1.merkleproof.btc.domain.co. 86400 IN	TXT "ABWoeMM73Sy1AdU7dyRYsoC84A0K+don8J+pnM/FjOQwxBmbhK6A/mDYARfekuK3D8FXKR8Chao6hqpjDR2sOw2uYP4AnpHXDrwZAcoU9m1sHXuas0TET5zPODfcWGAsHg=="
+ff39f5ddfefdbd01056ee09d5629d04c.53480eb32f9034f655948fd6b0912e14.1.merkleproof.btc.domain.co. 86400 IN	TXT "AT+ZTXYCGMPzZoh0AZ1V8P5xM0sD7appW3hethNY/dW6/8y4tHFrZlY25snvAQ=="
+
+```
+
+Let's see how to verify in python the merkle tree, assuming we have a function to rebuild the merkle proof
+ for the merkle module (client w.i.p.!), let's the code explain itself:
+
+```
+    import base64
+    
+    def build_merkle_proof(data, root, proof=None):
+        proof = proof and [x for x in proof] or []
+        d = {0: 'SELF', 1: 'R', 2: 'L'}
+        if data:
+            proof.append((data[:32], d[data[32]]))
+            return check_merkle_proof(data[33:], root, proof=proof)
+        return proof + [(binascii.unhexlify(root)[::-1], 'ROOT')]
+
+
+    
+    a = base64.b64decode('ABQukbDWj5RV9jSQL7MOSFNM0ClWneBuBQG9/f7d9Tn/AHM7TcHq3FwY/R/UHTbN3OYzpQZoCYQFjA3VjiZkbjd8AbPUa2e1eyMvg3JZh/128AZvLzj910tlaT+/64mx2w==')
+    b = base64.b64decode('AYH9Afx1EO7TX+nQk3t7LnE1LdYImVdO1JyGyLH3Txgo6Y1dAuWhKcn/alzRjFAiI8PnQFD2roXE16VfHCzQn1p7f4+TAY6dWKH+Qf77istXA4pldbiEPZ09zfY0DfVLqw==')
+    c = base64.b64decode('As+d55/cAU64SlSTCVSJeodT4UfE795qnA+HPbXC44VD9XcKsSB7AfAoTCnUqJmNe8NPkHsfFUTv4qhfsotCRFhcWmjM3UbYARLpLxsHcIqK4YdgPwBQc3DWkvYDPZ+nbA==')
+    d = base64.b64decode('ABWoeMM73Sy1AdU7dyRYsoC84A0K+don8J+pnM/FjOQwxBmbhK6A/mDYARfekuK3D8FXKR8Chao6hqpjDR2sOw2uYP4AnpHXDrwZAcoU9m1sHXuas0TET5zPODfcWGAsHg==')
+    e = base64.b64decode('AT+ZTXYCGMPzZoh0AZ1V8P5xM0sD7appW3hethNY/dW6/8y4tHFrZlY25snvAQ==')
+    assert a[0] == 0
+    assert b[0] == 1
+    assert c[0] == 2
+    assert d[0] == 0
+    assert e[0] == 1
+    fromtxt = a[1:] + b[1:] + c[1:] + d[1:] + e[1:]
+    
+    build_merkle_proof(fromtxt, hexroot)
+    
+    check_chain(merkle_proof)
+    print('Proof verified')
+
+```
+
+Every chunk is splitted in more TXT records. Since some public DNS shuffle the answers, please consider the first byte
+as data index to rebuild the chunk (up to int 127).
+
+When the whole data is rebuilt, we use the check_chain function from the merkle module to check the proof.
+
+We have verified a bitcoin transaction over a DNS! Next step is to fetch the whole headers to a known checkpoint to ensure
+the proof is legit.

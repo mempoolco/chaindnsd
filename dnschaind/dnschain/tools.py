@@ -101,10 +101,10 @@ class SatoshiMerkleTree(merkle.MerkleTree):
         return new
 
 
-def check_merkle_proof(data, root, proof=None):
+def build_merkle_proof(data, root, proof=None):
     proof = proof and [x for x in proof] or []
     d = {0: 'SELF', 1: 'R', 2: 'L'}
     if data:
         proof.append((data[:32], d[data[32]]))
-        return check_merkle_proof(data[33:], root, proof=proof)
+        return build_merkle_proof(data[33:], root, proof=proof)
     return proof + [(binascii.unhexlify(root)[::-1], 'ROOT')]

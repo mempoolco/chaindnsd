@@ -1,6 +1,6 @@
 import binascii
 from dnschaind.dnschain import exceptions
-from dnschaind import get_data_chunks, int_to_ipv6, SatoshiMerkleTree, estimate_chunks, base64encode, check_merkle_proof
+from dnschaind import get_data_chunks, int_to_ipv6, SatoshiMerkleTree, estimate_chunks, base64encode, build_merkle_proof
 
 
 def query_validator(query):
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     t = b['tx']
     res = get_merkle_proof('ff39f5ddfefdbd01056ee09d5629d04c53480eb32f9034f655948fd6b0912e14', t)
     hexroot = '592850c4a8737f3f1be76c1384b3ebd753caa5622e1de21463fc56e11a8ec912'
-    res = check_merkle_proof(res, hexroot)
+    res = build_merkle_proof(res, hexroot)
 
     import base64
     a = base64.b64decode('ABQukbDWj5RV9jSQL7MOSFNM0ClWneBuBQG9/f7d9Tn/AHM7TcHq3FwY/R/UHTbN3OYzpQZoCYQFjA3VjiZkbjd8AbPUa2e1eyMvg3JZh/128AZvLzj910tlaT+/64mx2w==')
@@ -76,5 +76,5 @@ if __name__ == '__main__':
     assert d[0] == 0
     assert e[0] == 1
     fromtxt = a[1:] + b[1:] + c[1:] + d[1:] + e[1:]
-    check_merkle_proof(fromtxt, hexroot)
+    build_merkle_proof(fromtxt, hexroot)
     print('Proof verified')
