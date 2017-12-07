@@ -61,7 +61,7 @@ And no more! Run dnschaind, as you have seen in settings.py, dnschaind will bind
 #### get block hash
 Try with the genesis block:
 
-There are two ways to fetch the blockhash for a given height, the IPv6 way:
+There are two ways to fetch the blockhash for a given height,__the IPv6 way__:
 
 ```
 $ dig 0.blockhash.btc.domain.co AAAA @localhost -p 8053
@@ -97,7 +97,9 @@ an you can bet this is the genesis block:
 000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
 ```
 
-and the good old IPv4 way:
+
+
+__The IPv4 way, instead, is a little more readable__, but pay attention to the notes down below:
 
 ```
 $ dig 0.blockhash.btc.domain.co AAAA @localhost -p 8053
@@ -117,13 +119,14 @@ drives to:
 ```
 000115459751a80e2c453ed13b5e5aaf16a5ed0edd31dd74281df7c9.block.btc.domain.co. 31449600 IN A 127.0.0.1
 ```
-this redundance of API is because I don't know which policy is the best to encourage the caching of this information.
 
-The AAAA query size is 108bytes, with a single query.
 
-The CNAME query size is 129bytes, plus 52bytes of the A record.
-
-I would say the IPv6 way is better, though is a little tricky to implement and less human readable.
+> This redundance of API is because I don't know which policy is the best to encourage the caching of this information.
+> The AAAA query size is 108bytes, with a single query.
+>
+>The CNAME query size is 129bytes, plus 52bytes of the A record.
+>
+>I would say the IPv6 way is __the best one__, though is a little tricky to implement and less human readable.
 
 #### get block header
 
