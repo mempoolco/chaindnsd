@@ -5,28 +5,38 @@
 # Author: twitter.com/khs9ne
 #
 
+from dnschaind.clients.bitcoind_client import BitcoinRPCClient, BitcoindException
 from dnslib import RR
-from dnschaind.bitcoind_client import BitcoinRPCClient, BitcoindException
-from dnschaind.zones_factory import ZonesFactory
+
+from dnschaind import dnschain
+from dnschaind.dnschain.zones_factory import ZonesFactory
+from dnschaind.zones import validators
 
 
 class ChainResolver:
     TTL_1Y = 31449600
     IN_TXT = 16
 
-    def __init__(self, bitcoind: BitcoinRPCClient, domain: str, coin: str, zones_factory: ZonesFactory=None):
+    def __init__(self,
+                 bitcoind: BitcoinRPCClient, domain: str, coin: str, zones_factory: ZonesFactory=None):
         self.bitcoind = bitcoind
         self.domain = domain
         self.coin = coin
         self.zones_factory = zones_factory
-        self.actions = {
-            'height': self._resolve_blockheight,
-            'block': self._resolve_blockheaders,
-            'txs': self._resolve_transactions,
-            'tx': self._resolve_transaction
-        }
 
-    def _resolve_blockheight(self, record, _, reply):
+    @dnschain.query('bestheight')
+    @dnschain.validate(validators.BestHeightResolverValidator, validators.BestHeightResolverResponseValidator)
+    def bestheight_resolver(self):
+        pass
+
+    @dnschain.query('pushtx')
+    @dnschain.validate(validators.PushtxResolverValidator, validators.PushtxResolverResponseValidator)
+    def pushtx_resolver(self):
+        pass
+
+    @dnschain.query('blockheight')
+    @dnschain.validate(validators.BlockhashValidator, validators.BlockhashResponseValidator)
+    def blockheight_resolver(self, record: query.MerkleProofResolver, _, reply):
         blockheight = int(record[0])
         try:
             blockhash = self.bitcoind.getblockhash(blockheight)
@@ -37,18 +47,22 @@ class ChainResolver:
                 .from_blockheight(blockheight, blockhash).zones():
             reply.add_answer(*RR.fromZone(zone, ttl=0))
 
-    def _resolve_blockheaders(self, record, qtype, reply):
+    @dnschain.query('block')
+    @dnschain.validate(validators.BlockheaderValidator, validators.BlockheaderResponseValidator)
+    def blockheader_resolver(self, record: query.MerkleProofResolver, qtype, reply):
         blockhash = record[0]
         try:
             blockheader = self.bitcoind.getblockheader(blockhash, verbose=False)
         except BitcoindException:
             return
         r = '{}.block.{}.{}'.format(blockhash, self.coin, self.domain)
-        for zone in self.zones_factory().set_record(r).set_coin(self.coin).set_domain(self.domain)\
-                .set_qtype(qtype).from_hexblockheaders(blockhash, blockheader).zones():
+        for zone in self.zones_facfrom_hextory().set_record(r).set_coin(self.coin).set_domain(self.domain)\
+                .set_qtype(qtype).blockheaders(blockhash, blockheader).zones():
             reply.add_answer(*RR.fromZone(zone, ttl=self.TTL_1Y))
 
-    def _resolve_transactions(self, record, qtype, reply):
+    @dnschain.query('blocktxs')
+    @dnschain.validate(validators.TransactionsValidator, validators.TransactionsResponseValidator)
+    def blocktxs_resolver(self, record: query.MerkleProofResolver, qtype, reply):
         blockhash = record[0]
         try:
             jsonblock = self.bitcoind.getblock(blockhash)
@@ -66,17 +80,21 @@ class ChainResolver:
                     set_qtype(qtype).from_transactions(blockhash, jsonblock['tx']).to_block_transactions_chunk():
                 reply.add_answer(*RR.fromZone(zone, ttl=self.TTL_1Y))
 
-    def _resolve_transaction(self, record, qtype, reply):
-        txhash = record[0]
-        pass
-
-    def _resolve_pushtx(self, question, reply):
-        # todo
-        pass
-
-    def _resolve_bestblock(self, record, _, reply):
-        # todo
-        pass
+    @dnschain.query('merkle')
+    @dnschain.validate(validators.MerkleProofValidator, validators.MerkleProofResponseValidator)
+    def merkleproof_resolver(self, record: query.MerkleProofResolver, qtype, reply):
+        try:
+            merkle_proof = self.bitcoind.get_merkle_proof(record)
+        except BitcoindException as e:
+            return
+        if record[3] == 'mp':
+            return 'merkle proof'
+        else:
+            chunk = int(record[3])
+            assert record[4] == 'mp'
+        for zone in self.zones_factory().set_record(record).set_coin(self.coin).set_domain(self.domain).\
+                set_qtype(qtype).from_merkle_proof(merkle_proof, chunk=chunk).zones('mp'):
+            reply.add_answer(*RR.fromZone(zone, ttl=self.TTL_1Y))
 
     def _resolve_question(self, question, reply):
         q = [x for x in str(question.qname).strip().split('.') if x]

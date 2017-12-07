@@ -30,8 +30,8 @@ class BitcoinRPCClient(object):
         self.btcd_headers = {'content-type': 'application/json', 'Authorization': btcd_auth_header}
         self.cache = cache
 
-    def call(self, method: str, *params, parse_float=Decimal):
-        return self._call(method, True, *params, parse_float=parse_float)
+    def call(self, method: str, *params, parse_float=Decimal, jsonr=True):
+        return self._call(method, jsonr, *params, parse_float=parse_float)
 
     def _emptyrescall(self, method, *params):
         return self._call(method, False, *params)
@@ -61,16 +61,12 @@ class BitcoinRPCClient(object):
     def getinfo(self):
         return self.call('getinfo')
 
-    def listunspent(self, address, minconf, maxconf):
-        return self.call('listunspent', minconf, maxconf, [address])
+    def get_best_height(self):
+        info = self.getinfo()
+        return int(info['blocks'])
 
-    def getrawtransaction(self, txid=None):
-        rawtx = self.call('getrawtransaction', txid, 1)
-        return rawtx
-
-    def decoderawtransaction(self, rawtx=None):
-        decoded = self.call('decoderawtransaction', rawtx)
-        return decoded
+    def get_block_hash(self, block_height):
+        return self.call('getblockhash', block_height)
 
     def getblock(self, block_hash, verbose=True):
         return self.call('getblock', block_hash, verbose)
@@ -78,12 +74,9 @@ class BitcoinRPCClient(object):
     def getblockheader(self, block_hash, verbose=True):
         return self.call('getblockheader', block_hash, verbose)
 
-    def getblockhash(self, block_height):
-        return self.call('getblockhash', block_height)
 
     def getrawmempool(self, verbose=False):
         return self.call('getrawmempool', verbose)
 
     def getmempoolentry(self, txid: str):
         return self.call('getmempoolentry', txid)
-
