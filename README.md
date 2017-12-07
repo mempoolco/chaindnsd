@@ -165,8 +165,10 @@ This is 0, the genesis block:
 
 This is, for example, the record for the block 400002 
 ```buildoutcfg
-1000::040:0002
+1000::40:2
 ```
+
+apply padding and you have :0040:0002
 
 
 #### get merkle proof
