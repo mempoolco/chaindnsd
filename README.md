@@ -16,8 +16,9 @@ CNAME, TXT e AAAA records.
 
 - Get blockhash by height
 - Get blockheaders by hash
-- Get merkleproof 
-
+- Get merkleproof (w.i.p.)
+- Push tx (todo)
+- Verify unspent (todo)
 
 ## Setup
 
