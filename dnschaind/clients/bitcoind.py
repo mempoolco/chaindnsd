@@ -74,8 +74,5 @@ class BitcoinRPCClient(object):
     def get_block_header(self, block_hash, verbose=True):
         return self.call('getblockheader', block_hash, verbose)
 
-    def getrawmempool(self, verbose=False):
-        return self.call('getrawmempool', verbose)
-
-    def getmempoolentry(self, txid: str):
-        return self.call('getmempoolentry', txid)
+    def get_raw_transaction(self, txid, verbose=True):
+        return self.call('getrawtransaction', txid, verbose)

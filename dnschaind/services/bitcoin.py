@@ -20,7 +20,15 @@ class BitcoinService:
         return self.bitcoin.getblock(blockhash)
 
     def gettxinfo(self, txid: str, blockparents=None):
-        pass
+        res = {'txid': None}
+        transaction = self.bitcoin.get_raw_transaction(txid, verbose=True)
+        print(transaction.keys())
+        if not transaction:
+            return res
+        res['txid'] = transaction['txid']
+        if blockparents and transaction.get('blockhash') is not None:
+            res['blockparents'] = self.bitcoin.getblock(transaction['blockhash'])['tx']
+        return res
 
     def getbestheight(self):
         pass

@@ -26,15 +26,16 @@ def blockheader_resolver(query):
 
 @validate(merkleproof.QueryValidator)
 def merkleproof_resolver(query):
-    txhash = ''.join(query.arguments)
+    txhash = ''.join(query.arguments[0] + query.arguments[1])
     txinfo = bitcoin.gettxinfo(txhash, blockparents=True)
-    return merkleproof.get_response(query, txinfo)
+    if txinfo.get('txid') == txhash:
+        return merkleproof.get_response(query, txinfo)
 
 
 zone = create_zone('btc', 'bitcoin')
 zone.add_resolver('blockhash', blockhash_resolver, [Qtype.AAAA], ttl=TTL_1Y)
 zone.add_resolver('blockheader', blockheader_resolver, [Qtype.TXT, Qtype.AAAA], ttl=TTL_1Y)
-zone.add_resolver('merkleproof', merkleproof_resolver, [Qtype.A, Qtype.TXT, Qtype.CNAME], ttl=TTL_1D)
+zone.add_resolver('merkleproof', merkleproof_resolver, [Qtype.TXT, Qtype.AAAA], ttl=TTL_1D)
 
 #zone.add_resolver('block', blockheader_resolver, [Qtype.A, Qtype.TXT, Qtype.CNAME], ttl=TTL_1W)
 
