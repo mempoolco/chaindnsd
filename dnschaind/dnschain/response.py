@@ -7,7 +7,7 @@ class Response:
     @staticmethod
     def _get_answer_entry(query):
         if query.qtype in [query.available_qtype.TXT]:
-            return query.fqdn.replace(query.domain, '.')
+            return query.fqdn.replace(query.domain + '.', '')
         return query.fqdn
 
     def add_answer(self, query, data: bytes, qtype=None):

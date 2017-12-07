@@ -56,4 +56,5 @@ class Router:
         if not response:
             return
         for answer in response.answers:
+            print(repr(answer))
             reply.add_answer(*RR.fromZone(answer, ttl=response.ttl))

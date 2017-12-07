@@ -22,5 +22,5 @@ def get_response(query, blockheader, blockheight):
     response = Response()
     data = base64encode(add_checksum(binascii.unhexlify(blockheader)))
     response.add_answer(query, data, qtype=query.available_qtype.TXT)
-    blockheight and response.add_answer(query, int_to_ipv6(blockheight), qtype=query.available_qtype.AAAA)
+    blockheight is not None and response.add_answer(query, int_to_ipv6(blockheight), qtype=query.available_qtype.AAAA)
     return response
