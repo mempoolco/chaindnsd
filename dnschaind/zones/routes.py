@@ -1,15 +1,15 @@
 from dnschaind import validate, create_zone, TTL_1S, TTL_1Y, Qtype, TTL_1D
-from dnschaind.zones import blockhash, blockheader, merkleproof
+from dnschaind.zones import blockhash, blockheader, merkleproof, block
 from dnschaind.services.bitcoin import INSTANCE as bitcoin
 
 
 @validate(blockhash.QueryValidator)
 def blockhash_resolver(query):
-    block = bitcoin.getblockhash(int(query.arguments[0]))
-    if not block:
+    _block = bitcoin.getblockhash(int(query.arguments[0]))
+    if not _block:
         return
-    response = blockhash.get_response(query, block['hash'])
-    response.force_ttl = block['age'] > 6 and TTL_1Y or TTL_1S
+    response = blockhash.get_response(query, _block['hash'])
+    response.force_ttl = _block['age'] > 6 and TTL_1Y or TTL_1S
     return response
 
 
@@ -32,10 +32,16 @@ def merkleproof_resolver(query):
         return merkleproof.get_response(query, txinfo)
 
 
+@validate(block.QueryValidator)
+def block_resolver(query):
+    _block = bitcoin.getblockheader('0'*8 + query.arguments[0])
+    return _block and block.get_response(query, _block)
+
+
 zone = create_zone('btc', 'bitcoin')
-zone.add_resolver('blockhash', blockhash_resolver, [Qtype.AAAA], ttl=TTL_1Y)
+zone.add_resolver('blockhash', blockhash_resolver, [Qtype.AAAA, Qtype.A, Qtype.CNAME], ttl=TTL_1Y)
 zone.add_resolver('blockheader', blockheader_resolver, [Qtype.TXT, Qtype.AAAA], ttl=TTL_1Y)
 zone.add_resolver('merkleproof', merkleproof_resolver, [Qtype.TXT, Qtype.AAAA], ttl=TTL_1D)
-
+zone.add_resolver('block', block_resolver, [Qtype.A, Qtype.CNAME], ttl=TTL_1Y)
 #zone.add_resolver('block', blockheader_resolver, [Qtype.A, Qtype.TXT, Qtype.CNAME], ttl=TTL_1W)
 
