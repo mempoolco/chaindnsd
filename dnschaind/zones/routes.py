@@ -15,10 +15,13 @@ def blockhash_resolver(query):
 
 @validate(blockheader.QueryValidator)
 def blockheader_resolver(query):
-    header = bitcoin.getblockheader(blockhash, verbose=False)
+    _hash = '0' * 8 + query.arguments[0]
+    header = bitcoin.getblockheader(_hash)
+    blockheight = blockheader and bitcoin.getblock(_hash)
+    blockheight = blockheight and blockheight['height']
     if not header:
         return
-    return blockheader.get_response(query, header)
+    return blockheader.get_response(query, header, blockheight)
 
 
 @validate(merkleproof.QueryValidator)
@@ -30,6 +33,7 @@ def merkleproof_resolver(query):
 
 zone = create_zone('btc', 'bitcoin')
 zone.add_resolver('blockhash', blockhash_resolver, [Qtype.AAAA], ttl=TTL_1Y)
+zone.add_resolver('header', blockheader_resolver, [Qtype.TXT, Qtype.AAAA], ttl=TTL_1Y)
 
 
 #zone.add_resolver('block', blockheader_resolver, [Qtype.A, Qtype.TXT, Qtype.CNAME], ttl=TTL_1W)

@@ -9,6 +9,7 @@ TTL_1H = 3600
 TTL_1D = TTL_1H*24
 TTL_1W = TTL_1D*7
 TTL_1Y = TTL_1W*52
+LOCALHOST = '127.0.0.1'
 
 
 def validate(validator):
@@ -53,9 +54,9 @@ def get_data_chunks(data, chunk=None):
     return _split(chunks[chunk], MAX_TXT_SIZE)
 
 
-def int_to_ipv4(n: int):
-    assert n < 254**2
-    return '127.0.{}.{}'.format(int(n / 254), n % 254)
+def int_to_ipv6(n: int):
+    assert len(str(n)) < 28
+    return '1000:' + ':'.join(_split('{}{}'.format('0' * (28 - len(str(n))), n), 4))
 
 
 def hex_to_ipv6(data: str):

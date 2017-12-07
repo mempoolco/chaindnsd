@@ -1,6 +1,6 @@
 import binascii
 from dnschaind.dnschain import exceptions
-from dnschaind import get_data_chunks, int_to_ipv4, estimate_chunks
+from dnschaind import get_data_chunks, estimate_chunks, int_to_ipv6
 
 
 def query_validator(query):
@@ -35,5 +35,5 @@ def get_response(query, txinfo):
     for answer in chunk:
         response.add_answer(query, answer, qtype=query.available_qtypes.TXT)
     if not len(query.arguments):
-        response.add_answer(query, int_to_ipv4(estimate_chunks(data)), qtype=query.available_qtypes.A)
+        response.add_answer(query, int_to_ipv6(estimate_chunks(data)), qtype=query.available_qtypes.AAAA)
     return response

@@ -1,6 +1,3 @@
-from dnschaind import add_checksum, base64encode
-
-
 class Response:
     def __init__(self):
         self._answers = []

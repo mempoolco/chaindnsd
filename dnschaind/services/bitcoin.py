@@ -2,7 +2,7 @@ from dnschaind.clients.bitcoind import BitcoinRPCClient
 from dnschaind.dnschain import settings
 
 
-class BitcoinService():
+class BitcoinService:
     def __init__(self, bitcoin_client):
         self.bitcoin = bitcoin_client
 
@@ -13,8 +13,11 @@ class BitcoinService():
             'age': self.bitcoin.get_best_height() - height
         }
 
+    def getblockheader(self, blockhash: str):
+        return self.bitcoin.get_block_header(blockhash, verbose=False)
+
     def getblock(self, blockhash: str):
-        pass
+        return self.bitcoin.getblock(blockhash)
 
     def gettxinfo(self, txid: str, blockparents=None):
         pass
