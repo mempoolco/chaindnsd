@@ -1,5 +1,5 @@
-from dnschaind.clients.bitcoind import BitcoinRPCClient
-from dnschaind.dnschain import settings
+from chaindnsd.clients.bitcoind import BitcoinRPCClient
+from chaindnsd.chaindns import settings
 
 
 class BitcoinService:
@@ -32,6 +32,12 @@ class BitcoinService:
 
     def getbestheight(self):
         pass
+
+    def getmempoolentry(self, txid):
+        return self.bitcoin.getmempoolentry(txid)
+
+    def getrawtransaction(self, txid, verbose=True):
+        return self.bitcoin.get_raw_transaction(txid, verbose=verbose)
 
 
 def get_instance():

@@ -1,4 +1,4 @@
-# dnschaind
+# chaindnsd
 
 A DNS with Bitcoin Blockchain resolution for full SPV over UDP DNS
 
@@ -25,13 +25,13 @@ CNAME, TXT e AAAA records.
 Clone and build local environment
 ```buildoutcfg
 
-$ git clone https://github.com/dnschain/dnschaind.git
-$ cd dnschaind
+$ git clone https://github.com/chaindns/chaindnsd.git
+$ cd chaindnsd
 $ ./localenv.sh
 
 ```
 
-Edit dnschaind/dnschain/settings.py with your favorite editor, and change
+Edit chaindnsd/chaindns/settings.py with your favorite editor, and change
 bitcoinrpc credentials to connect to your bitcoind. No SSL support available. 
 If you're going on the internet with rpc, use an SSH tunnel.
 
@@ -44,19 +44,19 @@ BITCOIND_HOSTNAME = b'http://bitcoin_node:8332'
 
 ```
  
-At this point, to test dnschaind in a local environment is not mandatory to 
+At this point, to test chaindnsd in a local environment is not mandatory to 
 have a real domain name. 
 
 
 #### Local usage for testing:
 
 ```buildoutcfg
-$ venv/bin/python dnschaind.py
+$ venv/bin/python chaindnsd.py
 
 ```
-And no more! Run dnschaind, as you have seen in settings.py, dnschaind will bind to localhost:8053 
+And no more! Run chaindnsd, as you have seen in settings.py, chaindnsd will bind to localhost:8053 
 
-## Using dnschain
+## Using chaindns
 
 #### get block hash
 Try with the genesis block:

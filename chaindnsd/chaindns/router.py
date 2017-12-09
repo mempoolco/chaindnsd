@@ -1,8 +1,6 @@
 from dnslib import RR
-from dnschaind import Query, TTL_1W
-from dnschaind.dnschain import exceptions
-from dnschaind.dnschain.exceptions import DomainException
-from dnschaind.dnschain.zone import Zone
+from chaindnsd import Query, TTL_1W
+from chaindnsd.chaindns import exceptions
 
 
 class Router:
@@ -23,7 +21,7 @@ class Router:
         self._exceptions_handlers[e] = callback
         return self
 
-    def add_zone(self, zone: Zone):
+    def add_zone(self, zone):
         for _s in zone.subdomains:
             assert not self._zones.get(_s)
             self._zones[_s] = zone
@@ -33,7 +31,7 @@ class Router:
         reply = request.reply()
         try:
             self._resolve(self._query_factory.get(request), reply, handler)
-        except DomainException as e:
+        except exceptions.DomainException as e:
             # this must be improved
             if self._exceptions_handlers:
                 for handler in self._exceptions_handlers:
@@ -56,5 +54,5 @@ class Router:
         if not response:
             return
         for answer in response.answers:
-            print(repr(answer))
+            print('Answer: {}'.format(answer))
             reply.add_answer(*RR.fromZone(answer, ttl=response.ttl))

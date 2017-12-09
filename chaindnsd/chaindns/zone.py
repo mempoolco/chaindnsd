@@ -1,5 +1,5 @@
-from dnschaind import TTL_1W, Qtype
-from dnschaind.dnschain import exceptions
+from chaindnsd import TTL_1W, Qtype
+from chaindnsd.chaindns import exceptions
 
 
 class Zone:

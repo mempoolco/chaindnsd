@@ -1,7 +1,7 @@
 import binascii
 
-from dnschaind.dnschain import exceptions
-from dnschaind import LOCALHOST
+from chaindnsd.chaindns import exceptions
+from chaindnsd import LOCALHOST
 
 
 def query_validator(query):
@@ -16,7 +16,7 @@ QueryValidator = query_validator
 
 
 def get_response(query, _):
-    from dnschaind import Response
+    from chaindnsd import Response
     response = Response()
     if query.qtype is query.available_qtype.A:
         response.add_answer(query, LOCALHOST, qtype=query.available_qtype.A)

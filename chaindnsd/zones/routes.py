@@ -1,6 +1,6 @@
-from dnschaind import validate, create_zone, TTL_1S, TTL_1Y, Qtype, TTL_1D
-from dnschaind.zones import blockhash, blockheader, merkleproof, block
-from dnschaind.services.bitcoin import INSTANCE as bitcoin
+from chaindnsd import validate, create_zone, TTL_1S, TTL_1Y, Qtype, TTL_1D
+from chaindnsd.zones import blockhash, blockheader, merkleproof, block
+from chaindnsd.services.bitcoin import INSTANCE as bitcoin
 
 
 @validate(blockhash.QueryValidator)
@@ -43,5 +43,3 @@ zone.add_resolver('blockhash', blockhash_resolver, [Qtype.AAAA, Qtype.A, Qtype.C
 zone.add_resolver('blockheader', blockheader_resolver, [Qtype.TXT, Qtype.AAAA], ttl=TTL_1Y)
 zone.add_resolver('merkleproof', merkleproof_resolver, [Qtype.TXT, Qtype.AAAA], ttl=TTL_1D)
 zone.add_resolver('block', block_resolver, [Qtype.A, Qtype.CNAME], ttl=TTL_1Y)
-#zone.add_resolver('block', blockheader_resolver, [Qtype.A, Qtype.TXT, Qtype.CNAME], ttl=TTL_1W)
-

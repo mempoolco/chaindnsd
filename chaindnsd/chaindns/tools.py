@@ -1,12 +1,11 @@
 from base64 import b64encode
-from functools import wraps
-
 import binascii
-
+from functools import wraps
+import hashlib
 import merkle
 
-from dnschaind.dnschain.settings import MAX_QUERY_SIZE, MAX_TXT_SIZE
-import hashlib
+from chaindnsd.chaindns.settings import MAX_QUERY_SIZE, MAX_TXT_SIZE
+
 
 
 TTL_1S = 1
@@ -28,7 +27,7 @@ def validate(validator):
 
 
 def create_zone(*a, ttl=None):
-    from dnschaind.dnschain.zone import Zone
+    from chaindnsd.chaindns.zone import Zone
     return Zone(*a, ttl=ttl)
 
 

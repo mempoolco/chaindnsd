@@ -1,5 +1,5 @@
-from dnschaind.dnschain import exceptions
-from dnschaind import hex_to_ipv6
+from chaindnsd.chaindns import exceptions
+from chaindnsd import hex_to_ipv6
 
 
 def query_validator(query):
@@ -15,7 +15,7 @@ QueryValidator = query_validator
 
 
 def get_response(query, blockhash):
-    from dnschaind import Response
+    from chaindnsd import Response
     response = Response()
     if query.qtype is query.available_qtype.AAAA:
         ips = hex_to_ipv6(blockhash[8:])

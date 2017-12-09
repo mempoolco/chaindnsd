@@ -1,6 +1,6 @@
 import binascii
-from dnschaind.dnschain import exceptions
-from dnschaind import get_data_chunks, int_to_ipv6, SatoshiMerkleTree, estimate_chunks, base64encode, build_merkle_proof
+from chaindnsd.chaindns import exceptions
+from chaindnsd import get_data_chunks, int_to_ipv6, SatoshiMerkleTree, estimate_chunks, base64encode, build_merkle_proof
 
 
 def query_validator(query):
@@ -40,7 +40,7 @@ def get_merkle_proof(tx, txs):
 
 
 def get_response(query, txinfo):
-    from dnschaind import Response
+    from chaindnsd import Response
     response = Response()
     data = txinfo.get('blockparents') and get_merkle_proof(txinfo['txid'], txinfo['blockparents'])
     if not data:
@@ -57,7 +57,7 @@ def get_response(query, txinfo):
 
 
 if __name__ == '__main__':
-    from dnschaind.services.bitcoin import INSTANCE as bitcoind
+    from chaindnsd.services.bitcoin import INSTANCE as bitcoind
     b = bitcoind.getblock('000000000000000000a2a646ca401d78627db077a28817fa22adb91cc357c8cc')
     t = b['tx']
     res = get_merkle_proof('ff39f5ddfefdbd01056ee09d5629d04c53480eb32f9034f655948fd6b0912e14', t)

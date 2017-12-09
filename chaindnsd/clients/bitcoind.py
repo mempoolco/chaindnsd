@@ -76,3 +76,7 @@ class BitcoinRPCClient(object):
 
     def get_raw_transaction(self, txid, verbose=True):
         return self.call('getrawtransaction', txid, verbose)
+
+    def getmempoolentry(self, txid):
+        return self.call('getmempoolentry', txid)
+

@@ -1,12 +1,12 @@
 from enum import Enum
-from dnschaind.dnschain import exceptions
+from chaindnsd.chaindns import exceptions
 
 
 class Qtype(Enum):
     A = 1
     TXT = 16
     AAAA = 28
-    CNAME = 2
+    CNAME = 5
 
 
 class Qclass(Enum):

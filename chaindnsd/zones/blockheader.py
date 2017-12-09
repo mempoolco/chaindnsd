@@ -1,7 +1,7 @@
 import binascii
 
-from dnschaind.dnschain import exceptions
-from dnschaind import add_checksum, base64encode, int_to_ipv6
+from chaindnsd.chaindns import exceptions
+from chaindnsd import add_checksum, base64encode, int_to_ipv6
 
 
 def query_validator(query):
@@ -18,7 +18,7 @@ QueryValidator = query_validator
 
 
 def get_response(query, blockheader, blockheight):
-    from dnschaind import Response
+    from chaindnsd import Response
     response = Response()
     data = base64encode(add_checksum(binascii.unhexlify(blockheader)))
     response.add_answer(query, data, qtype=query.available_qtype.TXT)

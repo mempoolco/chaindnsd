@@ -1,7 +1,7 @@
 import sys
 sys.path.insert(0, '.')
 
-from dnschaind.app import server
+from chaindnsd.app import server
 
 
 if __name__ == '__main__':

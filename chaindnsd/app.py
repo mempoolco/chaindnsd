@@ -1,9 +1,9 @@
 from dnslib.server import DNSServer
 
-from dnschaind import exceptions, QueryFactory
-from dnschaind.dnschain import settings
-from dnschaind.dnschain.router import Router
-from dnschaind.zones.routes import zone
+from chaindnsd import exceptions, QueryFactory
+from chaindnsd.chaindns import settings
+from chaindnsd.chaindns.router import Router
+from chaindnsd.zones.routes import zone
 
 query_factory = QueryFactory()
 query_factory.add_domain(settings.DOMAIN['domain'])
